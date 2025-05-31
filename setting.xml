@@ -1,0 +1,31 @@
+<settings>
+<servers>
+  <server>
+    <id>iit-patna-devOps_cicd</id>
+    <username>aws</username>
+    <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
+  </server>
+</servers>
+<profiles>
+  <profile>
+    <id>iit-patna-devOps_cicd</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+    <repositories>
+      <repository>
+        <id>iit-patna-devOps_cicd</id>
+        <url>https://iit-patna-767397808592.d.codeartifact.us-east-1.amazonaws.com/maven/devOps_cicd/</url>
+      </repository>
+    </repositories>
+  </profile>
+</profiles>
+<mirrors>
+  <mirror>
+    <id>iit-patna-devOps_cicd</id>
+    <name>iit-patna-devOps_cicd</name>
+    <url>https://iit-patna-767397808592.d.codeartifact.us-east-1.amazonaws.com/maven/devOps_cicd/</url>
+    <mirrorOf>*</mirrorOf>
+  </mirror>
+</mirrors>
+</settings>
