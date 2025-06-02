@@ -11,7 +11,7 @@
 
     if (city != null && !city.trim().isEmpty()) {
         try {
-            String apiKey = "your_api_key_here"; 
+            String apiKey = "589245745deafa8055cb72dfd66a8e30"; 
             String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&units=metric&appid=" + apiKey;
 
             URL url = new URL(apiUrl);
