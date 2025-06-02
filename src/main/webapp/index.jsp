@@ -1,4 +1,4 @@
-<%@ page import="java.net.*, java.io.*, org.json.*" %>
+<%@ page import="java.net.*, java.io.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String city = request.getParameter("city");
@@ -7,18 +7,28 @@
 
     if (city != null && !city.trim().isEmpty()) {
         try {
-            String apiKey = "589245745deafa8055cb72dfd66a8e30"; // Replace with your OpenWeatherMap API key
+            String apiKey = "589245745deafa8055cb72dfd66a8e30"; 
             String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&units=metric&appid=" + apiKey;
+
             URL url = new URL(apiUrl);
             BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuilder json = new StringBuilder();
+            StringBuilder response = new StringBuilder();
             String line;
-            while ((line = in.readLine()) != null) json.append(line);
+
+            while ((line = in.readLine()) != null) {
+                response.append(line);
+            }
             in.close();
 
-            JSONObject obj = new JSONObject(json.toString());
-            JSONObject main = obj.getJSONObject("main");
-            temperature = main.get("temp") + " °C";
+            // Simple manual parsing: look for "temp":number
+            String json = response.toString();
+            int tempIndex = json.indexOf("\"temp\":");
+            if (tempIndex != -1) {
+                int commaIndex = json.indexOf(",", tempIndex);
+                temperature = json.substring(tempIndex + 7, commaIndex).trim() + " °C";
+            } else {
+                error = "Temperature not found in response.";
+            }
 
         } catch (Exception e) {
             error = "Could not fetch temperature. Please check the city name.";
