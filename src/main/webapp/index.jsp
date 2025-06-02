@@ -12,16 +12,16 @@
 
             URL url = new URL(apiUrl);
             BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuilder response = new StringBuilder();
+            StringBuilder jsonresponse = new StringBuilder();
             String line;
 
             while ((line = in.readLine()) != null) {
-                response.append(line);
+                jsonresponse.append(line);
             }
             in.close();
 
             // Simple manual parsing: look for "temp":number
-            String json = response.toString();
+            String json = jsonresponse.toString();
             int tempIndex = json.indexOf("\"temp\":");
             if (tempIndex != -1) {
                 int commaIndex = json.indexOf(",", tempIndex);
