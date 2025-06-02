@@ -4,7 +4,7 @@
     String city = request.getParameter("city");
     String temperature = "", humidity = "", wind = "", condition = "", error = "";
 
-    if (city != null && !city.trim().isEmpty()) {
+    if (city != null && !city.trim().isEmpty() && error.isEmpty()) {
         try {
             String apiKey = "589245745deafa8055cb72dfd66a8e30";  // ← Replace with your real key
             String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&units=metric&appid=" + apiKey;
@@ -104,12 +104,12 @@
         </form>
 
         <%
-            if (city != null) {
+            if (city != null && !city.trim().isEmpty()) {
                 if (!error.isEmpty()) {
         %>
             <p style="color: #ff8080;"><%= error %></p>
         <%
-                } else {
+            } else {
         %>
             <h3>📍 <%= city %></h3>
             <p>🌡️ Temperature: <strong><%= temperature %></strong></p>
@@ -120,6 +120,7 @@
                 }
             }
         %>
+
     </div>
 </body>
 </html>
