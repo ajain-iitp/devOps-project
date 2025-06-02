@@ -2,47 +2,55 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String city = request.getParameter("city");
-    String temperature = "", humidity = "", wind = "", condition = "", error = "";
+    String temperature = "";
+    String weather = "";
+    String humidity = "";
+    String windSpeed = "";
+    String error = "";
+    String condition = "default";  // For setting background color
 
-    if (city != null && !city.trim().isEmpty() && error.isEmpty()) {
+    if (city != null && !city.trim().isEmpty()) {
         try {
-            String apiKey = "589245745deafa8055cb72dfd66a8e30";  // ← Replace with your real key
+            String apiKey = "your_api_key_here"; 
             String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&units=metric&appid=" + apiKey;
 
             URL url = new URL(apiUrl);
             BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuilder jsonResponse = new StringBuilder();
+            StringBuilder json = new StringBuilder();
             String line;
 
             while ((line = in.readLine()) != null) {
-                jsonResponse.append(line);
+                json.append(line);
             }
             in.close();
 
-            String json = jsonResponse.toString();
+            String jsonString = json.toString();
 
-            // Manual parsing for temp, humidity, wind, condition
-            int tempIndex = json.indexOf("\"temp\":");
-            int humidityIndex = json.indexOf("\"humidity\":");
-            int windIndex = json.indexOf("\"speed\":");
-            int conditionIndex = json.indexOf("\"description\":\"");
+            int tempIndex = jsonString.indexOf("\"temp\":");
+            int humidIndex = jsonString.indexOf("\"humidity\":");
+            int windIndex = jsonString.indexOf("\"speed\":");
+            int weatherIndex = jsonString.indexOf("\"main\":\"");
 
-            if (tempIndex != -1) {
-                temperature = json.substring(tempIndex + 7, json.indexOf(",", tempIndex)).trim() + " °C";
-            }
-            if (humidityIndex != -1) {
-                humidity = json.substring(humidityIndex + 10, json.indexOf("}", humidityIndex)).trim() + " %";
-            }
-            if (windIndex != -1) {
-                wind = json.substring(windIndex + 8, json.indexOf(",", windIndex)).trim() + " m/s";
-            }
-            if (conditionIndex != -1) {
-                int end = json.indexOf("\"", conditionIndex + 15);
-                condition = json.substring(conditionIndex + 15, end);
+            if (tempIndex != -1 && humidIndex != -1 && windIndex != -1 && weatherIndex != -1) {
+                int tempComma = jsonString.indexOf(",", tempIndex);
+                temperature = jsonString.substring(tempIndex + 7, tempComma) + " °C";
+
+                int humidComma = jsonString.indexOf(",", humidIndex);
+                humidity = jsonString.substring(humidIndex + 11, humidComma) + " %";
+
+                int windComma = jsonString.indexOf(",", windIndex);
+                windSpeed = jsonString.substring(windIndex + 8, windComma) + " m/s";
+
+                int weatherEnd = jsonString.indexOf("\"", weatherIndex + 8);
+                weather = jsonString.substring(weatherIndex + 8, weatherEnd);
+
+                condition = weather.toLowerCase(); // For CSS class
+            } else {
+                error = "Could not parse weather data.";
             }
 
         } catch (Exception e) {
-            error = "Could not fetch weather. Please check the city name.";
+            error = "Could not fetch data. Check city name.";
         }
     }
 %>
@@ -50,77 +58,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Weather Details</title>
+    <title>Weather Tracker</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            color: white;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .card {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 30px 40px;
-            border-radius: 20px;
+            font-family: Arial, sans-serif;
             text-align: center;
-            width: 320px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            padding-top: 50px;
+            transition: background-color 0.5s;
+            color: white;
         }
-        input[type="text"] {
+        .default      { background-color: #333; }
+        .clear        { background-color: #f7b733; }
+        .clouds       { background-color: #708090; }
+        .rain         { background-color: #4a90e2; }
+        .drizzle      { background-color: #7fb3d5; }
+        .thunderstorm { background-color: #34495e; }
+        .snow         { background-color: #b0c4de; color: black; }
+        .mist         { background-color: #aab7b8; }
+        .haze         { background-color: #bdc3c7; }
+        .fog          { background-color: #95a5a6; }
+        .smoke        { background-color: #6e7f80; }
+        .dust         { background-color: #d2b48c; }
+        .sand         { background-color: #c2b280; }
+        .tornado      { background-color: #2c3e50; }
+
+        input, button {
             padding: 10px;
-            border-radius: 8px;
-            border: none;
-            width: 80%;
-            margin-bottom: 10px;
+            font-size: 16px;
         }
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            background-color: #ffcc00;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        p {
-            margin: 8px 0;
-        }
-        h2 {
-            margin-bottom: 20px;
+        .weather-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: inline-block;
         }
     </style>
 </head>
-<body>
-    <div class="card">
-        <h2>🌤️ WeatherPeek</h2>
-        <form method="post">
-            <input type="text" name="city" placeholder="Enter your city name" required>
-            <br>
-            <button type="submit">Check Weather</button>
-        </form>
+<body class="<%= condition %>">
+    <h1>🌤️ Weather Tracker</h1>
+    <form method="post">
+        <input type="text" name="city" placeholder="Enter city name" required>
+        <button type="submit">Check</button>
+    </form>
 
-        <%
-            if (city != null && !city.trim().isEmpty()) {
-                if (!error.isEmpty()) {
-        %>
-            <p style="color: #ff8080;"><%= error %></p>
-        <%
-            } else {
-        %>
-            <h3>📍 <%= city %></h3>
-            <p>🌡️ Temperature: <strong><%= temperature %></strong></p>
-            <p>💧 Humidity: <strong><%= humidity %></strong></p>
-            <p>💨 Wind Speed: <strong><%= wind %></strong></p>
-            <p>☁️ Condition: <strong><%= condition %></strong></p>
-        <%
-                }
-            }
-        %>
-
+<%
+    if (city != null) {
+        if (!error.isEmpty()) {
+%>
+    <p style="color: yellow;"><%= error %></p>
+<%
+        } else {
+            String emoji = "🌡️";
+            if (condition.contains("clear")) emoji = "☀️";
+            else if (condition.contains("cloud")) emoji = "☁️";
+            else if (condition.contains("rain")) emoji = "🌧️";
+            else if (condition.contains("snow")) emoji = "❄️";
+            else if (condition.contains("drizzle")) emoji = "🌦️";
+            else if (condition.contains("thunder")) emoji = "🌩️";
+            else if (condition.contains("mist") || condition.contains("fog") || condition.contains("haze")) emoji = "🌫️";
+            else if (condition.contains("tornado")) emoji = "🌪️";
+%>
+    <div class="weather-box">
+        <h2><%= emoji %> Weather in <%= city %></h2>
+        <p><strong>Temperature:</strong> <%= temperature %></p>
+        <p><strong>Humidity:</strong> <%= humidity %></p>
+        <p><strong>Wind Speed:</strong> <%= windSpeed %></p>
+        <p><strong>Condition:</strong> <%= weather %></p>
     </div>
+<%
+        }
+    }
+%>
+
 </body>
 </html>
