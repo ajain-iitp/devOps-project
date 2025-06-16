@@ -96,7 +96,7 @@
     </style>
 </head>
 <body class="<%= condition %>">
-    <h1>🌤️ Weather Tracker</h1>
+    <h1>🌤️ Track Weather</h1>
     <form method="post">
         <input type="text" name="city" placeholder="Enter city name" required>
         <button type="submit">Check</button>
