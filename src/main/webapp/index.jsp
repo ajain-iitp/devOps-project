@@ -58,7 +58,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Weather Tracker</title>
+    <title>Track Weather</title>
     <style>
         body {
             font-family: Arial, sans-serif;
